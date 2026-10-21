@@ -1,0 +1,2839 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Shape Match - Kinder Klub</title>
+  <!-- Google Fonts: Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-cream: #FFF8E7;
+      --sky-blue: #8ED8F8;
+      --candy-pink: #FF8FBA;
+      --coral: #FF9B78;
+      --sunny-yellow: #FFD85C;
+      --orange: #FFAA4D;
+      --mint: #8EDFC0;
+      --lavender: #B9A7F5;
+      --purple: #8D72D8;
+      --dark-text: #42324F;
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --card-border: #F3E4D0;
+      --shadow-toy: 0 8px 0px rgba(0,0,0,0.08), 0 12px 24px rgba(66, 50, 79, 0.1);
+      --shadow-btn-pink: 0 6px 0 #E26895, 0 10px 18px rgba(255, 143, 186, 0.35);
+      --shadow-btn-coral: 0 6px 0 #E0734F, 0 10px 18px rgba(255, 155, 120, 0.35);
+      --shadow-btn-yellow: 0 6px 0 #DBB02E, 0 10px 18px rgba(255, 216, 92, 0.35);
+      --shadow-btn-blue: 0 6px 0 #5EBAE0, 0 10px 18px rgba(142, 216, 248, 0.35);
+      --shadow-btn-mint: 0 6px 0 #5CBF9D, 0 10px 18px rgba(142, 223, 192, 0.35);
+      --shadow-btn-purple: 0 6px 0 #6C51BA, 0 10px 18px rgba(141, 114, 216, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: var(--bg-cream);
+      color: var(--dark-text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Latar belakang bentuk organik comel */
+    .bg-blobs {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0.45;
+      animation: floatSlow 12s infinite alternate ease-in-out;
+    }
+
+    .blob-1 { top: -80px; left: -60px; width: 280px; height: 280px; background: var(--candy-pink); }
+    .blob-2 { bottom: -100px; right: -80px; width: 340px; height: 340px; background: var(--sky-blue); animation-delay: -4s; }
+    .blob-3 { top: 30%; right: -50px; width: 200px; height: 200px; background: var(--sunny-yellow); animation-delay: -7s; }
+    .blob-4 { bottom: 20%; left: -60px; width: 220px; height: 220px; background: var(--mint); animation-delay: -2s; }
+
+    @keyframes floatSlow {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(25px, 20px) scale(1.08); }
+    }
+
+    /* Bekas Aplikasi */
+    #app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 580px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 16px 20px;
+    }
+
+    /* Bar Atas UI */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .header-left, .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Lencana Statistik */
+    .stat-badge {
+      background: white;
+      border: 3px solid var(--card-border);
+      border-radius: 28px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      font-size: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+
+    .stat-badge svg {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      overflow: visible;
+    }
+
+    .badge-star { color: #E5A300; }
+    .badge-coin { color: #D87A00; }
+
+    /* Butang Gaya Mainan */
+    .btn-toy {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 800;
+      font-size: 17px;
+      color: white;
+      border-radius: 24px;
+      padding: 12px 22px;
+      min-height: 52px;
+      min-width: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s ease, filter 0.15s ease, box-shadow 0.1s ease;
+      position: relative;
+    }
+
+    .btn-toy:active {
+      transform: translateY(4px);
+    }
+
+    .btn-pink { background: var(--candy-pink); box-shadow: var(--shadow-btn-pink); }
+    .btn-pink:active { box-shadow: 0 2px 0 #E26895; }
+
+    .btn-coral { background: var(--coral); box-shadow: var(--shadow-btn-coral); }
+    .btn-coral:active { box-shadow: 0 2px 0 #E0734F; }
+
+    .btn-yellow { background: var(--sunny-yellow); color: #624800; box-shadow: var(--shadow-btn-yellow); }
+    .btn-yellow:active { box-shadow: 0 2px 0 #DBB02E; }
+
+    .btn-blue { background: var(--sky-blue); color: #0C4E6E; box-shadow: var(--shadow-btn-blue); }
+    .btn-blue:active { box-shadow: 0 2px 0 #5EBAE0; }
+
+    .btn-mint { background: var(--mint); color: #16563F; box-shadow: var(--shadow-btn-mint); }
+    .btn-mint:active { box-shadow: 0 2px 0 #5CBF9D; }
+
+    .btn-purple { background: var(--purple); box-shadow: var(--shadow-btn-purple); }
+    .btn-purple:active { box-shadow: 0 2px 0 #6C51BA; }
+
+    .btn-icon {
+      padding: 8px;
+      border-radius: 18px;
+      min-height: 42px;
+      min-width: 42px;
+    }
+
+    .btn-pill {
+      border-radius: 28px;
+      padding: 8px 16px;
+      font-size: 14px;
+      min-height: 42px;
+    }
+
+    /* Pengurusan Skrin */
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      width: 100%;
+      align-items: center;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Kad Menu */
+    .card {
+      background: var(--card-bg);
+      border: 4px solid var(--card-border);
+      border-radius: 32px;
+      padding: 20px;
+      width: 100%;
+      box-shadow: var(--shadow-toy);
+      backdrop-filter: blur(10px);
+    }
+
+    .title-banner {
+      text-align: center;
+      margin: 8px 0 16px;
+    }
+
+    .title-banner h1 {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--purple);
+      text-shadow: 2px 3px 0 #FFD85C;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .title-banner .sub {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--coral);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      margin: 16px 0;
+    }
+
+    .menu-btn {
+      font-size: 21px;
+      padding: 16px 22px;
+      width: 100%;
+      justify-content: flex-start;
+      border-radius: 26px;
+    }
+
+    .menu-btn-icon {
+      background: rgba(255,255,255,0.5);
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 14px;
+      flex-shrink: 0;
+    }
+
+    .menu-btn-icon svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .menu-btn-text {
+      flex: 1;
+      text-align: left;
+    }
+
+    /* Bar Akses Pantas */
+    .quick-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .quick-btn {
+      flex-direction: column;
+      padding: 12px 6px;
+      font-size: 13px;
+      gap: 6px;
+      min-height: 76px;
+      border-radius: 22px;
+    }
+
+    .quick-btn svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .quick-btn span {
+      font-weight: 700;
+    }
+
+    /* Paparan Sasaran Bentuk */
+    .target-container {
+      background: white;
+      border: 4px solid var(--sunny-yellow);
+      border-radius: 28px;
+      padding: 12px 18px;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 6px 0px rgba(255, 216, 92, 0.4), 0 8px 16px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .target-heading {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--purple);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .target-shape-wrapper {
+      width: 110px;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 4px 0;
+      animation: targetPulse 2.8s infinite ease-in-out;
+    }
+
+    @keyframes targetPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+
+    .target-shape-name {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--dark-text);
+      letter-spacing: 0.5px;
+    }
+
+    .target-subtext {
+      font-size: 13px;
+      font-weight: 600;
+      color: #796687;
+      margin-top: 2px;
+    }
+
+    /* Kawasan Papan Permainan */
+    .game-arena {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 320px;
+    }
+
+    .board-container {
+      background: var(--card-bg);
+      border: 4px solid var(--card-border);
+      border-radius: 32px;
+      width: 100%;
+      flex: 1;
+      min-height: 290px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 16px;
+      align-content: center;
+      justify-items: center;
+      box-shadow: var(--shadow-toy);
+      position: relative;
+      overflow: hidden;
+      transition: opacity 0.3s;
+    }
+
+    /* Item Bentuk Interaktif */
+    .shape-item {
+      width: 100%;
+      height: 100%;
+      min-height: 85px;
+      max-height: 115px;
+      background: white;
+      border: 3px solid #F0E2D2;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #E3D2BF, 0 8px 12px rgba(0,0,0,0.04);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.2s, border-color 0.3s;
+      position: relative;
+      touch-action: manipulation;
+    }
+
+    .shape-item:active {
+      transform: translateY(4px) scale(0.97);
+      box-shadow: 0 1px 0 #E3D2BF;
+    }
+
+    .shape-item svg {
+      width: 68px;
+      height: 68px;
+      pointer-events: none;
+      filter: drop-shadow(0 3px 2px rgba(0,0,0,0.06));
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Animasi Maklum Balas */
+    .shape-item.correct-anim {
+      animation: popSparkle 0.45s ease-out forwards;
+      pointer-events: none;
+    }
+
+    .shape-item.wrong-anim {
+      animation: gentleWiggle 0.4s ease-in-out;
+    }
+
+    @keyframes gentleWiggle {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px) rotate(-3deg); }
+      40% { transform: translateX(8px) rotate(3deg); }
+      60% { transform: translateX(-5px) rotate(-1.5deg); }
+      80% { transform: translateX(5px) rotate(1.5deg); }
+    }
+
+    @keyframes popSparkle {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.22) rotate(6deg); }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    /* Bar Kemajuan & Pembilang */
+    .found-hud {
+      margin-top: 14px;
+      width: 100%;
+      background: white;
+      border: 3px solid var(--card-border);
+      border-radius: 26px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+
+    .found-label {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--purple);
+    }
+
+    .counter-slots {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .counter-slot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 3px solid #E3D2BF;
+      background: #FAF6EF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: transparent;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .counter-slot.filled {
+      background: var(--mint);
+      border-color: #5CBF9D;
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 3px 8px rgba(142, 223, 192, 0.5);
+    }
+
+    /* Karakter Pembantu Chibi */
+    .chibi-helper {
+      position: fixed;
+      bottom: 45px;
+      right: 18px;
+      width: 82px;
+      height: 82px;
+      z-index: 10;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .chibi-helper.bounce {
+      animation: chibiBounce 0.6s ease;
+    }
+
+    @keyframes chibiBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      40% { transform: translateY(-24px) scale(1.15) rotate(-5deg); }
+      70% { transform: translateY(4px) scale(0.95) rotate(3deg); }
+    }
+
+    /* Pengurusan Kotak Dialog (Modal) */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(43, 30, 54, 0.65);
+      backdrop-filter: blur(6px);
+      z-index: 150;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px);
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-cream);
+      border: 4px solid var(--sunny-yellow);
+      border-radius: 32px;
+      padding: 22px 18px;
+      width: 100%;
+      max-width: 480px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.25);
+      animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: auto;
+    }
+
+    @keyframes modalPop {
+      0% { transform: scale(0.88); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--purple);
+      text-align: center;
+      text-shadow: 1px 2px 0 #FFE082;
+      line-height: 1.2;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+    }
+
+    .form-group label {
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--dark-text);
+    }
+
+    .form-group input, .form-group select {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      border: 3px solid var(--card-border);
+      background: white;
+      color: var(--dark-text);
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--candy-pink);
+    }
+
+    /* Grid Bentuk */
+    .shape-grid-display {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      width: 100%;
+      margin: 6px 0;
+    }
+
+    .shape-grid-card {
+      background: white;
+      border: 3px solid var(--card-border);
+      border-radius: 18px;
+      padding: 8px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 4px;
+    }
+
+    .shape-grid-card.locked {
+      opacity: 0.4;
+      filter: grayscale(1);
+    }
+
+    .shape-grid-card svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .shape-grid-card span {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--dark-text);
+    }
+
+    /* Senarai Pencapaian */
+    .achieve-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .achieve-card {
+      background: white;
+      border: 3px solid var(--card-border);
+      border-radius: 18px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .achieve-card.unlocked {
+      border-color: var(--mint);
+      background: #F4FAF7;
+    }
+
+    .achieve-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: #FAF3E6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .achieve-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .achieve-card.unlocked .achieve-icon {
+      background: #D9F4E9;
+    }
+
+    .achieve-info {
+      flex: 1;
+    }
+
+    .achieve-info h4 {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--dark-text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .achieve-info p {
+      font-size: 11px;
+      font-weight: 600;
+      color: #796687;
+    }
+
+    /* Baris Statistik */
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: white;
+      border-radius: 16px;
+      border: 2px solid var(--card-border);
+      font-weight: 700;
+      font-size: 13.5px;
+    }
+
+    .stat-row .val {
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--purple);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .val svg, .stat-badge svg {
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.06));
+    }
+
+    /* Kanvas Efek */
+    #fxCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    /* Kaki Halaman */
+    footer {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #9C89A8;
+      padding: 10px 0 4px;
+      width: 100%;
+    }
+
+    /* Toast Notifikasi Bersih */
+    .toast-pill {
+      position: fixed;
+      top: env(safe-area-inset-top, 16px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-140%);
+      opacity: 0;
+      visibility: hidden;
+      background: white;
+      border: 3.5px solid var(--sunny-yellow);
+      border-radius: 30px;
+      padding: 10px 22px;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--purple);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+      z-index: 999;
+      pointer-events: none;
+      transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease, visibility 0.25s ease;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast-pill.show {
+      transform: translateX(-50%) translateY(14px);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Animasi Kotak Hadiah Utama */
+    .gift-hero-box {
+      width: 100px;
+      height: 100px;
+      margin: 8px auto;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .gift-hero-box:active {
+      transform: scale(0.92);
+    }
+
+    .gift-hero-box svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Tema Latar Permainan */
+    .scene-park { background-color: #F3F9EA; }
+    .scene-playroom { background-color: #FFF6EC; }
+    .scene-beach { background-color: #EBF8FE; }
+    .scene-cloud { background-color: #F5F1FF; }
+    .scene-garden { background-color: #F8FBE9; }
+
+    @media (max-width: 380px) {
+      .board-container {
+        gap: 8px;
+        padding: 10px;
+      }
+      .shape-item svg {
+        width: 52px;
+        height: 52px;
+      }
+      .target-shape-wrapper {
+        width: 88px;
+        height: 88px;
+      }
+      .title-banner h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Latar Belakang Blob -->
+  <div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+  </div>
+
+  <!-- Kanvas Partikel Confetti -->
+  <canvas id="fxCanvas"></canvas>
+
+  <!-- Banner Notifikasi -->
+  <div id="toastPill" class="toast-pill">
+    <span id="toastIcon"></span>
+    <span id="toastText">Hebat!</span>
+  </div>
+
+  <!-- Bekas Utama Aplikasi -->
+  <div id="app">
+
+    <!-- Bar Atas Global -->
+    <header class="app-header">
+      <div class="header-left">
+        <button id="btnHeaderHome" class="btn-toy btn-blue btn-icon" title="Menu" style="display:none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </button>
+        <div id="progressBadge" class="stat-badge" style="display:none; color:var(--purple);">
+          <span id="txtProgress">AKTIVITI 1/5</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="btnLangToggle" class="btn-toy btn-yellow btn-pill" style="min-height:36px; padding:4px 12px; font-size:12.5px; gap:6px;">
+          <!-- SVG Bahasa Comel Diinjeksi di JS -->
+          <span id="langIconSlot"></span>
+          <span id="langTextSlot">BM</span>
+        </button>
+        <button id="btnAudioToggle" class="btn-toy btn-mint btn-icon" style="min-height:36px; min-width:36px; padding:6px;" title="Audio">
+          <svg id="svgAudioOn" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+          <svg id="svgAudioOff" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line x1="23" y1="9" x2="17" y2="15"/>
+            <line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        </button>
+        <div class="stat-badge badge-star">
+          <!-- Bintang Chibi SVG Sempurna Tanpa Kerat -->
+          <svg viewBox="0 0 32 32" fill="none" style="overflow:visible;">
+            <path d="M 16 3.8 L 19.8 11.5 L 28 12.6 L 22 18.4 L 23.5 26.8 L 16 22.8 L 8.5 26.8 L 10 18.4 L 4 12.6 L 12.2 11.5 Z" fill="#FFD85C" stroke="#E5A300" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="13.2" cy="15.8" r="1.3" fill="#42324F"/>
+            <circle cx="18.8" cy="15.8" r="1.3" fill="#42324F"/>
+            <circle cx="11.5" cy="17" r="1" fill="#FF8FBA" opacity="0.75"/>
+            <circle cx="20.5" cy="17" r="1" fill="#FF8FBA" opacity="0.75"/>
+            <path d="M 14.8 18.2 Q 16 19.5 17.2 18.2" stroke="#42324F" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+          </svg>
+          <span id="topStarsVal">0</span>
+        </div>
+        <div class="stat-badge badge-coin">
+          <!-- Syiling Chibi SVG -->
+          <svg viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="13" fill="#FFAA4D" stroke="#D87A00" stroke-width="2.5"/>
+            <circle cx="16" cy="16" r="9" fill="#FFD85C" stroke="#E5A300" stroke-width="1.8"/>
+            <ellipse cx="12" cy="12" rx="2" ry="1" fill="white" opacity="0.6"/>
+            <circle cx="16" cy="16" r="3.5" fill="#FFAA4D"/>
+          </svg>
+          <span id="topCoinsVal">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================================== -->
+    <!-- SKRIN 1: MENU UTAMA                            -->
+    <!-- ============================================== -->
+    <main id="screenMenu" class="screen active">
+      <div class="title-banner">
+        <div class="sub">Kindy Klub</div>
+        <h1 id="txtAppTitle">Shape Match</h1>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <!-- Ikon Tangan Melambai Chibi SVG -->
+            <div style="width:34px; height:34px; display:flex; align-items:center; justify-content:center;">
+              <svg viewBox="0 0 36 36" width="32" height="32" fill="none">
+                <circle cx="18" cy="18" r="17" fill="#FFE2C9" stroke="#FF9B78" stroke-width="2"/>
+                <path d="M12 22 C10 16 14 12 18 16 C18 13 22 13 22 17 C23 14 26 15 25 19 C24 23 18 26 13 23 Z" fill="#FFAA4D"/>
+                <path d="M 27 9 Q 29 11 27 13" stroke="#FF8FBA" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M 30 7 Q 33 10 30 13" stroke="#FF8FBA" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size:12px; font-weight:700; color:#887498;" id="txtHelloLabel">Pemain:</div>
+              <div id="txtActiveChildName" style="font-size:17px; font-weight:800; color:var(--purple);">Adik Comel</div>
+            </div>
+          </div>
+          <button id="btnParentSettings" class="btn-toy btn-yellow btn-pill" style="min-height:36px; padding:6px 12px; font-size:12.5px; gap:6px;">
+            <!-- Gear SVG -->
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span id="txtScoreboardBtn">Papan Skor</span>
+          </button>
+        </div>
+
+        <div class="menu-buttons">
+          <button id="btnMode5" class="btn-toy btn-pink menu-btn">
+            <div class="menu-btn-icon">
+              <!-- Bintang Ceria SVG -->
+              <svg viewBox="0 0 32 32" fill="none" style="overflow:visible;">
+                <path d="M 16 3.8 L 19.8 11.5 L 28 12.6 L 22 18.4 L 23.5 26.8 L 16 22.8 L 8.5 26.8 L 10 18.4 L 4 12.6 L 12.2 11.5 Z" fill="#FFF8E7" stroke="#E26895" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="13.2" cy="15.8" r="1.3" fill="#42324F"/>
+                <circle cx="18.8" cy="15.8" r="1.3" fill="#42324F"/>
+                <circle cx="11.5" cy="17" r="1" fill="#FF8FBA" opacity="0.75"/>
+                <circle cx="20.5" cy="17" r="1" fill="#FF8FBA" opacity="0.75"/>
+                <path d="M 14.8 18.2 Q 16 19.5 17.2 18.2" stroke="#42324F" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="menu-btn-text" id="txtMode5">5 AKTIVITI</div>
+          </button>
+
+          <button id="btnMode10" class="btn-toy btn-coral menu-btn">
+            <div class="menu-btn-icon">
+              <!-- Sasaran / Target SVG -->
+              <svg viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="16" r="13" fill="#FFF8E7" stroke="#E0734F" stroke-width="2.5"/>
+                <circle cx="16" cy="16" r="9" fill="#FF8FBA" stroke="#E0734F" stroke-width="2"/>
+                <circle cx="16" cy="16" r="4.5" fill="#FFD85C"/>
+              </svg>
+            </div>
+            <div class="menu-btn-text" id="txtMode10">10 AKTIVITI</div>
+          </button>
+
+          <button id="btnModeFree" class="btn-toy btn-blue menu-btn">
+            <div class="menu-btn-icon">
+              <!-- Belon Chibi SVG -->
+              <svg viewBox="0 0 32 32" fill="none">
+                <ellipse cx="16" cy="13" rx="10" ry="12" fill="#FF8FBA" stroke="#5EBAE0" stroke-width="2"/>
+                <path d="M 16 25 L 14.5 27 L 17.5 27 Z" fill="#FF8FBA"/>
+                <path d="M 16 27 Q 14 29 17 31" stroke="#42324F" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+                <ellipse cx="13" cy="9" rx="2.5" ry="4" fill="white" opacity="0.6"/>
+              </svg>
+            </div>
+            <div class="menu-btn-text" id="txtModeFree">MAIN BEBAS</div>
+          </button>
+        </div>
+
+        <div class="quick-bar">
+          <button id="btnOpenGift" class="btn-toy btn-yellow quick-btn">
+            <!-- Kotak Hadiah SVG -->
+            <svg viewBox="0 0 32 32" fill="none">
+              <rect x="5" y="11" width="22" height="17" rx="4" fill="#FF8FBA" stroke="#DBB02E" stroke-width="2"/>
+              <rect x="3" y="8" width="26" height="6" rx="3" fill="#8ED8F8" stroke="#DBB02E" stroke-width="2"/>
+              <rect x="14" y="8" width="4" height="20" fill="#FFD85C"/>
+              <path d="M 16 8 C 12 3, 7 6, 12 8 Z" fill="#8ED8F8" stroke="#DBB02E" stroke-width="1.5"/>
+              <path d="M 16 8 C 20 3, 25 6, 20 8 Z" fill="#8ED8F8" stroke="#DBB02E" stroke-width="1.5"/>
+            </svg>
+            <span id="txtGiftBtn">Hadiah Harian</span>
+          </button>
+
+          <button id="btnOpenCollection" class="btn-toy btn-mint quick-btn">
+            <!-- Palet Warna SVG -->
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M 7 18 C 5 9, 16 4, 23 7 C 29 9, 30 18, 25 24 C 22 27, 18 24, 16 26 C 14 28, 12 28, 9 26 C 7 24, 7 20, 7 18 Z" fill="#FFF8E7" stroke="#5CBF9D" stroke-width="2"/>
+              <circle cx="12" cy="11" r="2" fill="#FF8FBA"/>
+              <circle cx="18" cy="9" r="2" fill="#8ED8F8"/>
+              <circle cx="24" cy="13" r="2" fill="#FFD85C"/>
+              <circle cx="23" cy="20" r="2" fill="#FFAA4D"/>
+              <circle cx="11" cy="22" r="2.5" fill="#5CBF9D"/>
+            </svg>
+            <span id="txtCollectionBtn">Koleksi</span>
+          </button>
+
+          <button id="btnOpenAchievements" class="btn-toy btn-purple quick-btn">
+            <!-- Piala Kejayaan SVG -->
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M 9 6 L 23 6 L 21 16 C 20 20, 12 20, 11 16 Z" fill="#FFD85C" stroke="#6C51BA" stroke-width="2"/>
+              <path d="M 9 9 C 5 9, 5 14, 10 14" stroke="#6C51BA" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M 23 9 C 27 9, 27 14, 22 14" stroke="#6C51BA" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <rect x="14" y="19" width="4" height="6" fill="#FFAA4D"/>
+              <rect x="10" y="25" width="12" height="4" rx="2" fill="#FFD85C" stroke="#6C51BA" stroke-width="2"/>
+            </svg>
+            <span id="txtAchieveBtn">Pencapaian</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ============================================== -->
+    <!-- SKRIN 2: PERMAINAN (GAMEPLAY)                  -->
+    <!-- ============================================== -->
+    <main id="screenGame" class="screen">
+      <!-- Paparan Sasaran Bentuk -->
+      <section class="target-container">
+        <div class="target-heading" id="txtTargetHeading">CARI BENTUK INI</div>
+        <div id="targetShapeDisplay" class="target-shape-wrapper"></div>
+        <div id="targetShapeName" class="target-shape-name">BULAT</div>
+        <div class="target-subtext" id="txtTargetSub">Cari semua bentuk yang sama!</div>
+      </section>
+
+      <!-- Papan Bentuk Interaktif -->
+      <section class="game-arena">
+        <div id="gameBoard" class="board-container"></div>
+
+        <!-- Dulang Kemajuan Padanan -->
+        <div class="found-hud">
+          <span class="found-label" id="txtFoundLabel">DAH JUMPA</span>
+          <div id="counterSlots" class="counter-slots"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============================================== -->
+    <!-- SKRIN 3: SESI SELESAI                          -->
+    <!-- ============================================== -->
+    <main id="screenComplete" class="screen">
+      <div class="card" style="text-align:center; padding:28px 18px;">
+        <!-- Topi Pesta Keraian SVG -->
+        <div style="width:72px; height:72px; margin:0 auto 10px; animation:chibiBounce 1s infinite alternate ease-in-out;">
+          <svg viewBox="0 0 64 64" width="100%" height="100%" fill="none">
+            <path d="M 32 8 L 14 52 L 50 52 Z" fill="#FF8FBA" stroke="#8D72D8" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M 23 30 L 41 30" stroke="#FFD85C" stroke-width="4" stroke-linecap="round"/>
+            <path d="M 18 42 L 46 42" stroke="#8ED8F8" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="32" cy="8" r="6" fill="#FFD85C" stroke="#8D72D8" stroke-width="2"/>
+            <circle cx="16" cy="18" r="3" fill="#8EDFC0"/>
+            <circle cx="48" cy="20" r="2.5" fill="#FF9B78"/>
+            <path d="M 10 28 Q 6 32 10 36" stroke="#FFAA4D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M 52 28 Q 56 32 52 36" stroke="#8ED8F8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2 id="txtCompleteTitle" style="font-size:28px; font-weight:800; color:var(--purple); margin-bottom:6px;">SESI SELESAI!</h2>
+        <p id="txtCompleteMsg" style="font-size:15px; font-weight:700; color:#7D688E; margin-bottom:18px;">Tahniah! Anda telah berjaya menyelesaikan semua aktiviti!</p>
+
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:20px;">
+          <div class="stat-row" style="flex-direction:column; padding:10px 4px; gap:4px;">
+            <span style="font-size:11.5px; color:#887498;" id="txtStatDone">Selesai</span>
+            <span id="resActivitiesVal" style="font-size:20px; font-weight:800; color:var(--purple);">5</span>
+          </div>
+          <div class="stat-row" style="flex-direction:column; padding:10px 4px; gap:4px;">
+            <span style="font-size:11.5px; color:#887498;" id="txtStatStars">Bintang</span>
+            <span id="resStarsVal" style="font-size:18px; font-weight:800; color:#E5A300;" class="val">
+              <!-- Diinjeksi di JS -->
+            </span>
+          </div>
+          <div class="stat-row" style="flex-direction:column; padding:10px 4px; gap:4px;">
+            <span style="font-size:11.5px; color:#887498;" id="txtStatCoins">Syiling</span>
+            <span id="resCoinsVal" style="font-size:18px; font-weight:800; color:#D87A00;" class="val">
+              <!-- Diinjeksi di JS -->
+            </span>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button id="btnPlayAgain" class="btn-toy btn-pink" style="width:100%; font-size:18px; gap:10px;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+              <path d="M21 3v5h-5"/>
+              <path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+              <path d="M8 16H3v5"/>
+            </svg>
+            <span id="txtBtnPlayAgain">Main Lagi</span>
+          </button>
+          <button id="btnCompleteBack" class="btn-toy btn-blue" style="width:100%; font-size:17px; gap:10px;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span id="txtBtnCompleteBack">Kembali</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Pembantu Karakter Chibi -->
+    <div id="chibiCharacter" class="chibi-helper" title="Chibi Helper">
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <ellipse cx="50" cy="94" rx="28" ry="6" fill="rgba(0,0,0,0.12)"/>
+        <path d="M 32 60 C 32 45, 68 45, 68 60 C 68 76, 74 90, 50 90 C 26 90, 32 76, 32 60 Z" fill="#FF8FBA"/>
+        <path d="M 40 68 C 40 62, 60 62, 60 68 C 60 76, 58 84, 50 84 C 42 84, 40 76, 40 68 Z" fill="#FFF8E7"/>
+        <circle cx="50" cy="42" r="32" fill="#FFE2C9"/>
+        <circle cx="24" cy="22" r="12" fill="#8D72D8"/>
+        <circle cx="76" cy="22" r="12" fill="#8D72D8"/>
+        <path d="M 22 36 C 26 18, 74 18, 78 36 C 68 30, 60 32, 50 28 C 40 32, 32 30, 22 36 Z" fill="#8D72D8"/>
+        <g id="chibiEyes">
+          <circle cx="38" cy="42" r="5" fill="#42324F"/>
+          <circle cx="62" cy="42" r="5" fill="#42324F"/>
+          <circle cx="36" cy="40" r="1.8" fill="white"/>
+          <circle cx="60" cy="40" r="1.8" fill="white"/>
+        </g>
+        <ellipse cx="32" cy="48" rx="5" ry="3" fill="#FF8FBA" opacity="0.6"/>
+        <ellipse cx="68" cy="48" rx="5" ry="3" fill="#FF8FBA" opacity="0.6"/>
+        <path id="chibiMouth" d="M 46 48 Q 50 54 54 48" stroke="#42324F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M 76 22 L 78 26 L 82 26 L 79 29 L 80 33 L 76 30 L 72 33 L 73 29 L 70 26 L 74 26 Z" fill="#FFD85C"/>
+      </svg>
+    </div>
+
+    <!-- Kaki Halaman -->
+    <footer>
+      Kinder Klub | All Rights Reserved
+    </footer>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL 1: PERSEDIAAN IBU BAPA / CARI PROFIL     -->
+  <!-- ============================================== -->
+  <div id="modalSetup" class="modal-backdrop">
+    <div class="modal-content">
+      <h3 class="modal-title" id="txtSetupTitle">Persediaan Ibu Bapa</h3>
+      <p id="txtSetupSub" style="font-size:12.5px; font-weight:700; color:#887498; text-align:center;">
+        Masukkan nama & kod keluarga untuk muat semula rekod atau mula baru!
+      </p>
+      <div class="form-group">
+        <label id="lblChildName">Nama Anak</label>
+        <input type="text" id="inpChildName" placeholder="Contoh: Aiman / Sofia" maxlength="20" />
+      </div>
+      <div class="form-group">
+        <label id="lblFamilyCode">Kod Keluarga (Family Code)</label>
+        <input type="text" id="inpFamilyCode" placeholder="Contoh: KK-889" maxlength="20" />
+      </div>
+      <div class="form-group">
+        <label id="lblLanguage">Bahasa Pilihan</label>
+        <select id="selLanguage">
+          <option value="bm">Bahasa Melayu</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:6px;">
+        <button id="btnSaveProfile" class="btn-toy btn-pink" style="flex:2; gap:6px;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+            <path d="M12 2 L14.5 9 L22 12 L14.5 15 L12 22 L9.5 15 L2 12 L9.5 9 Z" fill="#FFD85C" stroke="#E26895" stroke-width="2"/>
+          </svg>
+          <span id="txtBtnSaveProfile">Simpan & Mula</span>
+        </button>
+        <button id="btnCancelSetup" class="btn-toy btn-blue" style="flex:1; display:none;">
+          <span id="txtBtnCancelSetup">Batal</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL 2: PAPAN SKOR & PENGURUSAN PROFIL        -->
+  <!-- ============================================== -->
+  <div id="modalScoreboard" class="modal-backdrop">
+    <div class="modal-content">
+      <h3 class="modal-title" id="txtScoreboardTitle">Papan Skor Keluarga</h3>
+
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div class="stat-row">
+          <span id="lblSbChild">Nama Anak</span>
+          <span class="val" id="valSbChild">-</span>
+        </div>
+        <div class="stat-row">
+          <span id="lblSbFamCode">Kod Keluarga</span>
+          <span class="val" id="valSbFamCode">-</span>
+        </div>
+        <div class="stat-row">
+          <span id="lblSbStars">Jumlah Bintang</span>
+          <span class="val" id="valSbStars" style="color:#E5A300;">
+            <!-- Diinjeksi di JS bersama SVG -->
+          </span>
+        </div>
+        <div class="stat-row">
+          <span id="lblSbCoins">Jumlah Syiling</span>
+          <span class="val" id="valSbCoins" style="color:#D87A00;">
+            <!-- Diinjeksi di JS bersama SVG -->
+          </span>
+        </div>
+        <div class="stat-row">
+          <span id="lblSbDone">Aktiviti Diselesaikan</span>
+          <span class="val" id="valSbDone">0</span>
+        </div>
+        <div class="stat-row">
+          <span id="lblSbDiscovered">Bentuk Ditemui</span>
+          <span class="val" id="valSbDiscovered">0 / 8</span>
+        </div>
+        <div class="stat-row">
+          <span id="lblSbSessions">Jumlah Sesi</span>
+          <span class="val" id="valSbSessions">0</span>
+        </div>
+      </div>
+
+      <hr style="border:0; border-top:2px dashed #E5D5C2; margin:2px 0;"/>
+
+      <!-- Butang Ubah / Kemaskini Maklumat Profil -->
+      <button id="btnEditCurrentProf" class="btn-toy btn-yellow btn-pill" style="width:100%; gap:8px;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"/>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+        <span id="txtBtnEditProf">Kemaskini Nama / Kod Keluarga</span>
+      </button>
+
+      <!-- Tukar Profil Anak / Tambah Profil -->
+      <div class="form-group">
+        <label id="lblSwitchProf">Tukar Profil Anak</label>
+        <select id="selProfileSwitch"></select>
+      </div>
+
+      <div style="display:flex; gap:8px;">
+        <button id="btnAddNewChild" class="btn-toy btn-mint btn-pill" style="flex:1; gap:6px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span id="txtBtnNewProfile">Profil Baru</span>
+        </button>
+        <button id="btnResetCurrent" class="btn-toy btn-coral btn-pill" style="flex:1; gap:6px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6"/>
+            <path d="M14 11v6"/>
+          </svg>
+          <span id="txtBtnReset">Padam Data</span>
+        </button>
+      </div>
+
+      <button id="btnCloseScoreboard" class="btn-toy btn-blue" style="width:100%; margin-top:4px;">
+        <span id="txtBtnCloseSb">Tutup</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL 2B: SUNTING PROFIL AKTIF                -->
+  <!-- ============================================== -->
+  <div id="modalEditProfile" class="modal-backdrop">
+    <div class="modal-content">
+      <h3 class="modal-title" id="txtEditModalTitle">Kemaskini Profil</h3>
+      <div class="form-group">
+        <label id="lblEditChildName">Nama Anak</label>
+        <input type="text" id="inpEditChildName" maxlength="20" />
+      </div>
+      <div class="form-group">
+        <label id="lblEditFamilyCode">Kod Keluarga (Family Code)</label>
+        <input type="text" id="inpEditFamilyCode" maxlength="20" />
+      </div>
+      <div style="display:flex; gap:10px; margin-top:8px;">
+        <button id="btnSaveEditProfile" class="btn-toy btn-mint" style="flex:1; gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          <span id="txtBtnSaveEdit">Simpan</span>
+        </button>
+        <button id="btnCancelEditProfile" class="btn-toy btn-blue" style="flex:1;">
+          <span id="txtBtnCancelEdit">Batal</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL 3: KOLEKSI BENTUK                        -->
+  <!-- ============================================== -->
+  <div id="modalCollection" class="modal-backdrop">
+    <div class="modal-content">
+      <h3 class="modal-title" id="txtCollectionTitle">Koleksi Bentuk</h3>
+      <p id="txtCollectionSub" style="text-align:center; font-size:13px; font-weight:700; color:#887498;">
+        Main aktiviti untuk menemui semua bentuk!
+      </p>
+
+      <div id="collectionGrid" class="shape-grid-display"></div>
+
+      <button id="btnCloseCollection" class="btn-toy btn-blue" style="width:100%;">
+        <span id="txtBtnCloseCol">Tutup</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL 4: PENCAPAIAN                            -->
+  <!-- ============================================== -->
+  <div id="modalAchievements" class="modal-backdrop">
+    <div class="modal-content">
+      <h3 class="modal-title" id="txtAchieveTitle">Pencapaian</h3>
+      <div id="achieveList" class="achieve-list"></div>
+      <button id="btnCloseAchieve" class="btn-toy btn-purple" style="width:100%;">
+        <span id="txtBtnCloseAch">Tutup</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL 5: HADIAH HARIAN                         -->
+  <!-- ============================================== -->
+  <div id="modalGift" class="modal-backdrop">
+    <div class="modal-content" style="text-align:center;">
+      <h3 class="modal-title" id="txtGiftTitle">Hadiah Harian</h3>
+      <!-- Kotak Hadiah Hero SVG Comel -->
+      <div id="giftBoxVisual" class="gift-hero-box">
+        <svg viewBox="0 0 64 64" fill="none">
+          <ellipse cx="32" cy="58" rx="24" ry="5" fill="rgba(0,0,0,0.12)"/>
+          <rect x="12" y="24" width="40" height="32" rx="7" fill="#FF8FBA" stroke="#42324F" stroke-width="3"/>
+          <rect x="8" y="16" width="48" height="12" rx="5" fill="#8ED8F8" stroke="#42324F" stroke-width="3"/>
+          <rect x="28" y="16" width="8" height="40" fill="#FFD85C"/>
+          <path d="M 32 16 C 24 5, 14 10, 24 16 Z" fill="#8ED8F8" stroke="#42324F" stroke-width="2.5"/>
+          <path d="M 32 16 C 40 5, 50 10, 40 16 Z" fill="#8ED8F8" stroke="#42324F" stroke-width="2.5"/>
+          <circle cx="20" cy="36" r="3" fill="#FFF8E7" opacity="0.7"/>
+          <circle cx="44" cy="42" r="2.5" fill="#FFF8E7" opacity="0.7"/>
+          <circle cx="22" cy="48" r="2" fill="#FFF8E7" opacity="0.7"/>
+        </svg>
+      </div>
+      <p id="txtGiftDesc" style="font-size:14px; font-weight:700; color:#7D688E;">
+        Buka kotak ajaib untuk dapatkan bintang & syiling percuma setiap hari!
+      </p>
+      <div id="giftClaimStatus" style="font-size:16px; font-weight:800; color:var(--purple); display:none;"></div>
+      <button id="btnClaimDailyGift" class="btn-toy btn-yellow" style="width:100%; margin-top:6px; gap:8px;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+          <path d="M12 2 L14.5 9 L22 12 L14.5 15 L12 22 L9.5 15 L2 12 L9.5 9 Z" fill="#FFD85C" stroke="#DBB02E" stroke-width="2"/>
+        </svg>
+        <span id="txtBtnClaimGift">Tuntut Hadiah!</span>
+      </button>
+      <button id="btnCloseGift" class="btn-toy btn-blue" style="width:100%;">
+        <span id="txtBtnCloseGift">Tutup</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL 6: PENGESAHAN PADAM                      -->
+  <!-- ============================================== -->
+  <div id="modalConfirmReset" class="modal-backdrop">
+    <div class="modal-content" style="text-align:center;">
+      <h3 class="modal-title" style="color:var(--coral);" id="txtResetTitle">Padam Kemajuan?</h3>
+      <p id="txtResetConfirmText" style="font-size:14.5px; font-weight:700; color:var(--dark-text);">
+        Padam semua kemajuan profil ini?
+      </p>
+      <div style="display:flex; gap:10px; margin-top:8px;">
+        <button id="btnConfirmDelete" class="btn-toy btn-coral" style="flex:1;">
+          <span id="txtBtnDelete">Padam</span>
+        </button>
+        <button id="btnCancelDelete" class="btn-toy btn-blue" style="flex:1;">
+          <span id="txtBtnCancel">Batal</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- JAVASCRIPT: LOGIK, STRUKTUR, SVG & AUDIO       -->
+  <!-- ============================================== -->
+  <script>
+    /* =================================================================
+       1. PERPUSTAKAAN SVG COMEL (CHIBI ICONS - NO EMOJIS)
+       ================================================================= */
+    const CUTE_SVG = {
+      star: (size = 18) => `
+        <svg viewBox="0 0 32 32" width="${size}" height="${size}" fill="none" style="vertical-align:middle; display:inline-block; overflow:visible;">
+          <path d="M 16 3.8 L 19.8 11.5 L 28 12.6 L 22 18.4 L 23.5 26.8 L 16 22.8 L 8.5 26.8 L 10 18.4 L 4 12.6 L 12.2 11.5 Z" fill="#FFD85C" stroke="#E5A300" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="13.2" cy="15.8" r="1.3" fill="#42324F"/>
+          <circle cx="18.8" cy="15.8" r="1.3" fill="#42324F"/>
+          <circle cx="11.5" cy="17" r="1" fill="#FF8FBA" opacity="0.75"/>
+          <circle cx="20.5" cy="17" r="1" fill="#FF8FBA" opacity="0.75"/>
+          <path d="M 14.8 18.2 Q 16 19.5 17.2 18.2" stroke="#42324F" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        </svg>`,
+
+      coin: (size = 18) => `
+        <svg viewBox="0 0 32 32" width="${size}" height="${size}" fill="none" style="vertical-align:middle; display:inline-block;">
+          <circle cx="16" cy="16" r="13" fill="#FFAA4D" stroke="#D87A00" stroke-width="2.5"/>
+          <circle cx="16" cy="16" r="9" fill="#FFD85C" stroke="#E5A300" stroke-width="1.8"/>
+          <ellipse cx="12" cy="12" rx="2" ry="1" fill="white" opacity="0.6"/>
+          <circle cx="16" cy="16" r="3.5" fill="#FFAA4D"/>
+        </svg>`,
+
+      sparkle: (size = 20) => `
+        <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" style="vertical-align:middle; display:inline-block;">
+          <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#FFD85C" stroke="#FFAA4D" stroke-width="2" stroke-linejoin="round"/>
+        </svg>`,
+
+      gift: (size = 20) => `
+        <svg viewBox="0 0 32 32" width="${size}" height="${size}" fill="none" style="vertical-align:middle; display:inline-block;">
+          <rect x="5" y="11" width="22" height="17" rx="4" fill="#FF8FBA" stroke="#42324F" stroke-width="2"/>
+          <rect x="3" y="8" width="26" height="6" rx="3" fill="#8ED8F8" stroke="#42324F" stroke-width="2"/>
+          <rect x="14" y="8" width="4" height="20" fill="#FFD85C"/>
+          <path d="M 16 8 C 12 3, 7 6, 12 8 Z" fill="#8ED8F8" stroke="#42324F" stroke-width="1.5"/>
+          <path d="M 16 8 C 20 3, 25 6, 20 8 Z" fill="#8ED8F8" stroke="#42324F" stroke-width="1.5"/>
+        </svg>`,
+
+      check: (size = 20) => `
+        <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" style="vertical-align:middle; display:inline-block;">
+          <circle cx="12" cy="12" r="10" fill="#8EDFC0" stroke="#5CBF9D" stroke-width="2"/>
+          <path d="M 7 12 L 10.5 15.5 L 17 8.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`,
+
+      trash: (size = 20) => `
+        <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="#FF9B78" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; display:inline-block;">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6"/>
+          <path d="M14 11v6"/>
+        </svg>`,
+
+      globe: (size = 18) => `
+        <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; display:inline-block;">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>`
+    };
+
+    /* =================================================================
+       2. KONSTANTA & TERJEMAHAN BERPUSAT (BEBAS ROJAK)
+       ================================================================= */
+    const STORAGE_KEY = 'kinderKlub_shapeMatch_app';
+    const CURRENT_STORAGE_VERSION = 1;
+
+    const SHAPES_DEF = [
+      { id: 'circle', bm: 'BULAT', en: 'CIRCLE' },
+      { id: 'square', bm: 'SEGI EMPAT', en: 'SQUARE' },
+      { id: 'triangle', bm: 'SEGI TIGA', en: 'TRIANGLE' },
+      { id: 'rectangle', bm: 'SEGI EMPAT TEPAT', en: 'RECTANGLE' },
+      { id: 'star', bm: 'BINTANG', en: 'STAR' },
+      { id: 'heart', bm: 'HATI', en: 'HEART' },
+      { id: 'oval', bm: 'BUJUR', en: 'OVAL' },
+      { id: 'diamond', bm: 'BERLIAN', en: 'DIAMOND' }
+    ];
+
+    const PALETTE_COLORS = [
+      '#FF8FBA', /* candy pink */
+      '#8ED8F8', /* sky blue */
+      '#FFD85C', /* sunny yellow */
+      '#FF9B78', /* coral */
+      '#8EDFC0', /* mint */
+      '#B9A7F5', /* lavender */
+      '#FFAA4D', /* orange */
+      '#8D72D8'  /* purple */
+    ];
+
+    const SCENES = ['scene-park', 'scene-playroom', 'scene-beach', 'scene-cloud', 'scene-garden'];
+
+    const ACHIEVEMENTS_DEF = [
+      {
+        id: 'first_match',
+        bmTitle: 'PADANAN PERTAMA',
+        enTitle: 'FIRST MATCH',
+        bmDesc: 'Selesaikan 1 aktiviti pertama.',
+        enDesc: 'Complete your first activity.',
+        iconSvg: `
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M 16 28 C 16 22, 17 15, 17 10" stroke="#5CBF9D" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 17 18 C 22 18, 26 15, 27 10 C 21 9, 17 14, 17 18 Z" fill="#8EDFC0" stroke="#5CBF9D" stroke-width="2"/>
+            <path d="M 17 15 C 11 15, 6 12, 5 7 C 12 6, 17 11, 17 15 Z" fill="#8EDFC0" stroke="#5CBF9D" stroke-width="2"/>
+          </svg>`,
+        req: 1
+      },
+      {
+        id: 'shape_finder',
+        bmTitle: 'PENCARI BENTUK',
+        enTitle: 'SHAPE FINDER',
+        bmDesc: 'Selesaikan 5 aktiviti.',
+        enDesc: 'Complete 5 activities.',
+        iconSvg: `
+          <svg viewBox="0 0 32 32" fill="none">
+            <circle cx="14" cy="14" r="8" fill="#FFF8E7" stroke="#FF9B78" stroke-width="3"/>
+            <line x1="20" y1="20" x2="28" y2="28" stroke="#FF9B78" stroke-width="4" stroke-linecap="round"/>
+            <path d="M 11 11 Q 14 9 17 11" stroke="#FF8FBA" stroke-width="2" stroke-linecap="round"/>
+          </svg>`,
+        req: 5
+      },
+      {
+        id: 'shape_master',
+        bmTitle: 'PAKAR BENTUK',
+        enTitle: 'SHAPE MASTER',
+        bmDesc: 'Temui kesemua 8 jenis bentuk.',
+        enDesc: 'Discover all 8 shapes.',
+        iconSvg: `
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M 5 23 L 7 10 L 12 16 L 16 8 L 20 16 L 25 10 L 27 23 Z" fill="#FFD85C" stroke="#E5A300" stroke-width="2.5" stroke-linejoin="round"/>
+            <circle cx="16" cy="8" r="2" fill="#FF8FBA"/>
+            <circle cx="7" cy="10" r="1.5" fill="#8ED8F8"/>
+            <circle cx="25" cy="10" r="1.5" fill="#8ED8F8"/>
+          </svg>`,
+        req: 8
+      },
+      {
+        id: 'super_matcher',
+        bmTitle: 'JUARA PADANAN',
+        enTitle: 'SUPER MATCHER',
+        bmDesc: 'Selesaikan 25 aktiviti.',
+        enDesc: 'Complete 25 activities.',
+        iconSvg: `
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M 18 3 L 7 17 L 16 17 L 14 29 L 25 15 L 16 15 Z" fill="#FFD85C" stroke="#FFAA4D" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>`,
+        req: 25
+      },
+      {
+        id: 'shape_hero',
+        bmTitle: 'WIRA BENTUK',
+        enTitle: 'SHAPE HERO',
+        bmDesc: 'Selesaikan 50 aktiviti.',
+        enDesc: 'Complete 50 activities.',
+        iconSvg: `
+          <svg viewBox="0 0 32 32" fill="none" style="overflow:visible;">
+            <path d="M 16 3.8 L 19.8 11.5 L 28 12.6 L 22 18.4 L 23.5 26.8 L 16 22.8 L 8.5 26.8 L 10 18.4 L 4 12.6 L 12.2 11.5 Z" fill="#FF8FBA" stroke="#8D72D8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="13.2" cy="15.8" r="1.3" fill="#42324F"/>
+            <circle cx="18.8" cy="15.8" r="1.3" fill="#42324F"/>
+            <circle cx="11.5" cy="17" r="1" fill="#FF8FBA" opacity="0.75"/>
+            <circle cx="20.5" cy="17" r="1" fill="#FF8FBA" opacity="0.75"/>
+            <path d="M 14.8 18.2 Q 16 19.5 17.2 18.2" stroke="#42324F" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+          </svg>`,
+        req: 50
+      }
+    ];
+
+    const I18N = {
+      bm: {
+        appTitle: "Shape Match",
+        helloLabel: "Pemain:",
+        scoreboardBtn: "Papan Skor",
+        mode5: "5 AKTIVITI",
+        mode10: "10 AKTIVITI",
+        modeFree: "MAIN BEBAS",
+        giftBtn: "Hadiah Harian",
+        collectionBtn: "Koleksi",
+        achieveBtn: "Pencapaian",
+        actProgress: (curr, total) => total ? `AKTIVITI ${curr} / ${total}` : "MAIN BEBAS",
+        targetHeading: "CARI BENTUK INI",
+        targetSub: "Cari semua bentuk yang sama!",
+        foundLabel: "DAH JUMPA",
+        tryAgain: "Cuba lagi!",
+        skipEncouragement: "Tak mengapa, jom cuba soalan seterusnya!",
+        correctPraise: "Hebat!",
+        sessionComplete: "SESI SELESAI!",
+        sessionDesc: "Tahniah! Anda telah berjaya menyelesaikan semua aktiviti!",
+        statDone: "Selesai",
+        statStars: "Bintang",
+        statCoins: "Syiling",
+        playAgain: "Main Lagi",
+        back: "Kembali",
+        parentSetup: "Persediaan Ibu Bapa",
+        parentSetupSub: "Masukkan nama & kod keluarga untuk muat semula rekod atau mula baru!",
+        childName: "Nama Anak",
+        familyCode: "Kod Keluarga",
+        favLanguage: "Bahasa Pilihan",
+        saveStart: "Simpan & Mula",
+        familyScoreboard: "Papan Skor Keluarga",
+        totalStars: "Jumlah Bintang",
+        totalCoins: "Jumlah Syiling",
+        activitiesCompleted: "Aktiviti Diselesaikan",
+        shapesDiscovered: "Bentuk Ditemui",
+        totalSessions: "Jumlah Sesi",
+        editProfileBtn: "Kemaskini Nama / Kod Keluarga",
+        editProfileTitle: "Kemaskini Profil",
+        save: "Simpan",
+        switchProfile: "Tukar Profil Anak",
+        newProfile: "Profil Baru",
+        resetBtn: "Padam Data",
+        close: "Tutup",
+        collectionTitle: "Koleksi Bentuk",
+        collectionSub: "Main aktiviti untuk menemui semua bentuk!",
+        dailyGiftTitle: "Hadiah Harian",
+        dailyGiftDesc: "Buka kotak ajaib untuk dapatkan bintang & syiling percuma setiap hari!",
+        claimGift: "Tuntut Hadiah!",
+        giftClaimedToday: "Anda telah menuntut hadiah hari ini! Kembali esok ya.",
+        giftSuccess: "Yay! Anda dapat +2 Bintang & +10 Syiling!",
+        deleteConfirmTitle: "Padam Kemajuan?",
+        deleteConfirmMsg: "Padam semua kemajuan profil ini?",
+        deleteBtn: "Padam",
+        cancelBtn: "Batal",
+        langBadgeText: "BM",
+        profileRestored: "Rekod lama dijumpai & dimuatkan semula!",
+        profileCreated: "Profil baru berjaya dicipta!"
+      },
+      en: {
+        appTitle: "Shape Match",
+        helloLabel: "Player:",
+        scoreboardBtn: "Family Scoreboard",
+        mode5: "5 ACTIVITIES",
+        mode10: "10 ACTIVITIES",
+        modeFree: "FREE PLAY",
+        giftBtn: "Daily Gift",
+        collectionBtn: "Collection",
+        achieveBtn: "Achievements",
+        actProgress: (curr, total) => total ? `ACTIVITY ${curr} / ${total}` : "FREE PLAY",
+        targetHeading: "FIND THIS SHAPE",
+        targetSub: "Find all the matching shapes!",
+        foundLabel: "FOUND",
+        tryAgain: "Try again!",
+        skipEncouragement: "It's okay, let's try the next one!",
+        correctPraise: "Awesome!",
+        sessionComplete: "SESSION COMPLETE!",
+        sessionDesc: "Congratulations! You completed all activities!",
+        statDone: "Completed",
+        statStars: "Stars",
+        statCoins: "Coins",
+        playAgain: "Play Again",
+        back: "Back",
+        parentSetup: "Parent Setup",
+        parentSetupSub: "Enter child name & family code to resume or start fresh!",
+        childName: "Child Name",
+        familyCode: "Family Code",
+        favLanguage: "Language Preference",
+        saveStart: "Save & Start",
+        familyScoreboard: "Family Scoreboard",
+        totalStars: "Total Stars",
+        totalCoins: "Total Coins",
+        activitiesCompleted: "Activities Completed",
+        shapesDiscovered: "Shapes Discovered",
+        totalSessions: "Total Sessions",
+        editProfileBtn: "Update Name / Family Code",
+        editProfileTitle: "Update Profile",
+        save: "Save",
+        switchProfile: "Switch Child Profile",
+        newProfile: "New Profile",
+        resetBtn: "Reset Data",
+        close: "Close",
+        collectionTitle: "Shape Collection",
+        collectionSub: "Play activities to discover all shapes!",
+        dailyGiftTitle: "Daily Gift",
+        dailyGiftDesc: "Open the magic box for free stars & coins every day!",
+        claimGift: "Claim Gift!",
+        giftClaimedToday: "You already claimed today's gift! Come back tomorrow.",
+        giftSuccess: "Yay! You received +2 Stars & +10 Coins!",
+        deleteConfirmTitle: "Reset Progress?",
+        deleteConfirmMsg: "Delete all progress for this profile?",
+        deleteBtn: "Delete",
+        cancelBtn: "Cancel",
+        langBadgeText: "EN",
+        profileRestored: "Old records found & restored!",
+        profileCreated: "New profile created!"
+      }
+    };
+
+    /* =================================================================
+       3. SVG BENTUK CHIBI PERMAINAN
+       ================================================================= */
+    function getShapeSVG(shapeId, fillColor = '#FF8FBA', strokeColor = '#3A284C', strokeWidth = 8) {
+      let content = '';
+      switch (shapeId) {
+        case 'circle':
+          content = `
+            <circle cx="50" cy="50" r="38" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 32 30 A 18 18 0 0 1 56 22" stroke="white" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.75"/>
+          `;
+          break;
+        case 'square':
+          content = `
+            <rect x="14" y="14" width="72" height="72" rx="16" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 26 24 L 56 24" stroke="white" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.75"/>
+          `;
+          break;
+        case 'triangle':
+          content = `
+            <path d="M 50 14 C 54 14, 57 18, 86 68 C 90 75, 85 84, 76 84 L 24 84 C 15 84, 10 75, 14 68 C 43 18, 46 14, 50 14 Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 44 28 L 30 56" stroke="white" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.75"/>
+          `;
+          break;
+        case 'rectangle':
+          content = `
+            <rect x="10" y="24" width="80" height="52" rx="14" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 22 34 L 54 34" stroke="white" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.75"/>
+          `;
+          break;
+        case 'star':
+          content = `
+            <path d="M 50 12 L 60 36 L 86 37 L 65 52 L 73 78 L 50 63 L 27 78 L 35 52 L 14 37 L 40 36 Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 46 25 L 54 38" stroke="white" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.75"/>
+          `;
+          break;
+        case 'heart':
+          content = `
+            <path d="M 50 82 C 16 60, 10 32, 28 20 C 40 12, 48 20, 50 25 C 52 20, 60 12, 72 20 C 90 32, 84 60, 50 82 Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 28 28 C 34 24, 40 26, 44 32" stroke="white" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.75"/>
+          `;
+          break;
+        case 'oval':
+          content = `
+            <ellipse cx="50" cy="50" rx="42" ry="28" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 28 36 A 24 16 0 0 1 54 28" stroke="white" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.75"/>
+          `;
+          break;
+        case 'diamond':
+          content = `
+            <path d="M 50 12 L 86 50 L 50 88 L 14 50 Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 32 44 L 50 24" stroke="white" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.75"/>
+          `;
+          break;
+        default:
+          content = `<circle cx="50" cy="50" r="36" fill="${fillColor}"/>`;
+      }
+      return `<svg viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
+    }
+
+    /* =================================================================
+       4. AUDIO SINTESIS (Web Audio API)
+       ================================================================= */
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.soundEnabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playPop() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(420, now);
+        osc.frequency.exponentialRampToValueAtTime(840, now + 0.12);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.12);
+      }
+      playCorrect() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + i * 0.08);
+          gain.gain.setValueAtTime(0.25, now + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.08);
+          osc.stop(now + i * 0.08 + 0.18);
+        });
+      }
+      playWrong() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.linearRampToValueAtTime(210, now + 0.16);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.16);
+      }
+      playReward() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [440, 554.37, 659.25, 880, 1108.73].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.25, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.06 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.25);
+        });
+      }
+      playFanfare() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+        const times = [0, 0.12, 0.24, 0.38, 0.52, 0.68];
+        const durs = [0.1, 0.1, 0.1, 0.12, 0.12, 0.4];
+        const now = this.ctx.currentTime;
+        notes.forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + times[i]);
+          gain.gain.setValueAtTime(0.28, now + times[i]);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + times[i] + durs[i]);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + times[i]);
+          osc.stop(now + times[i] + durs[i]);
+        });
+      }
+    }
+    const sfx = new SoundFX();
+
+    /* =================================================================
+       5. PENGURUSAN DATA LOCALSTORAGE & PEMULIHAN PROFIL PINTAR
+       ================================================================= */
+    function getCleanDefaultDb() {
+      const defaultId = 'prof_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+      return {
+        version: CURRENT_STORAGE_VERSION,
+        activeProfileId: defaultId,
+        profiles: {
+          [defaultId]: {
+            id: defaultId,
+            childName: "Adik Comel",
+            familyCode: "KK-101",
+            familyCodeNormalized: "kk-101",
+            language: "bm",
+            stars: 0,
+            coins: 0,
+            activitiesCompleted: 0,
+            achievements: [],
+            shapeCollection: [],
+            recentActivityHistory: [],
+            dailyGift: { lastClaimDate: null },
+            sessions: []
+          }
+        }
+      };
+    }
+
+    function loadAppData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          const initial = getCleanDefaultDb();
+          saveAppData(initial);
+          return initial;
+        }
+        const data = JSON.parse(raw);
+        if (!data || typeof data !== 'object' || !data.profiles || !data.activeProfileId) {
+          const fallback = getCleanDefaultDb();
+          saveAppData(fallback);
+          return fallback;
+        }
+        return data;
+      } catch (e) {
+        console.error("Storage corrupted, fallback default.", e);
+        const fresh = getCleanDefaultDb();
+        saveAppData(fresh);
+        return fresh;
+      }
+    }
+
+    function saveAppData(appDb) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appDb));
+      } catch (e) {
+        console.error("Failed writing localStorage", e);
+      }
+    }
+
+    function getActiveProfile() {
+      const db = loadAppData();
+      let prof = db.profiles[db.activeProfileId];
+      if (!prof) {
+        const firstKey = Object.keys(db.profiles)[0];
+        if (firstKey) {
+          db.activeProfileId = firstKey;
+          saveAppData(db);
+          return db.profiles[firstKey];
+        } else {
+          const fresh = getCleanDefaultDb();
+          saveAppData(fresh);
+          return fresh.profiles[fresh.activeProfileId];
+        }
+      }
+      return prof;
+    }
+
+    /* Pengecaman & Pemulihan Profil Pintar berdasarkan Nama & Kod Keluarga */
+    function createOrRestoreProfile(childName, familyCode, lang = 'bm') {
+      const db = loadAppData();
+      const cleanName = childName.trim() || 'Adik Comel';
+      const cleanFam = familyCode.trim() || 'KK-101';
+      const cleanNameNorm = cleanName.toLowerCase();
+      const cleanFamNorm = cleanFam.toLowerCase();
+
+      let existingProfId = null;
+      for (const id in db.profiles) {
+        const p = db.profiles[id];
+        const pNameNorm = (p.childName || '').trim().toLowerCase();
+        const pFamNorm = (p.familyCodeNormalized || (p.familyCode || '').trim().toLowerCase());
+        if (pNameNorm === cleanNameNorm && pFamNorm === cleanFamNorm) {
+          existingProfId = id;
+          break;
+        }
+      }
+
+      if (existingProfId) {
+        db.activeProfileId = existingProfId;
+        if (lang) db.profiles[existingProfId].language = lang;
+        saveAppData(db);
+        return { profile: db.profiles[existingProfId], isRestored: true };
+      } else {
+        const newId = 'prof_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+        const newProf = {
+          id: newId,
+          childName: cleanName,
+          familyCode: cleanFam,
+          familyCodeNormalized: cleanFamNorm,
+          language: lang,
+          stars: 0,
+          coins: 0,
+          activitiesCompleted: 0,
+          achievements: [],
+          shapeCollection: [],
+          recentActivityHistory: [],
+          dailyGift: { lastClaimDate: null },
+          sessions: []
+        };
+        db.profiles[newId] = newProf;
+        db.activeProfileId = newId;
+        saveAppData(db);
+        return { profile: newProf, isRestored: false };
+      }
+    }
+
+    function switchProfile(profileId) {
+      const db = loadAppData();
+      if (db.profiles[profileId]) {
+        db.activeProfileId = profileId;
+        saveAppData(db);
+        return db.profiles[profileId];
+      }
+      return getActiveProfile();
+    }
+
+    function updateProfile(mutatorFn) {
+      const db = loadAppData();
+      const prof = db.profiles[db.activeProfileId];
+      if (prof) {
+        mutatorFn(prof);
+        saveAppData(db);
+      }
+      return prof;
+    }
+
+    function setLanguage(lang) {
+      updateProfile(prof => {
+        prof.language = lang;
+      });
+      applyLanguageUI();
+    }
+
+    function resetProfile(profileId) {
+      const db = loadAppData();
+      if (db.profiles[profileId]) {
+        db.profiles[profileId].stars = 0;
+        db.profiles[profileId].coins = 0;
+        db.profiles[profileId].activitiesCompleted = 0;
+        db.profiles[profileId].achievements = [];
+        db.profiles[profileId].shapeCollection = [];
+        db.profiles[profileId].recentActivityHistory = [];
+        db.profiles[profileId].dailyGift = { lastClaimDate: null };
+        db.profiles[profileId].sessions = [];
+        saveAppData(db);
+      }
+    }
+
+    /* =================================================================
+       6. ENJIN AKTIVITI & ANTI-ULANGAN
+       ================================================================= */
+    let gameState = {
+      mode: 'mode5',
+      totalActivities: 5,
+      currentActivityIndex: 1,
+      targetShape: null,
+      targetColor: null,
+      matchingTotal: 0,
+      matchedCount: 0,
+      wrongCount: 0,
+      sessionStarsEarned: 0,
+      sessionCoinsEarned: 0,
+      boardItems: []
+    };
+
+    function pickRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function generateActivity() {
+      const prof = getActiveProfile();
+      const recentHist = prof.recentActivityHistory || [];
+
+      const recentTargets = recentHist.slice(-3).map(h => h.targetId);
+      let eligibleTargets = SHAPES_DEF.filter(s => !recentTargets.includes(s.id));
+      if (eligibleTargets.length === 0) eligibleTargets = SHAPES_DEF;
+
+      let targetShape = pickRandom(eligibleTargets);
+      let targetColor = pickRandom(PALETTE_COLORS);
+      let sceneTheme = pickRandom(SCENES);
+
+      let matchCount = Math.floor(Math.random() * 3) + 2; // 2, 3, 4
+      let distractorCount = Math.floor(Math.random() * 4) + 3; // 3, 4, 5, 6
+      let totalBoardSlots = matchCount + distractorCount;
+      if (totalBoardSlots > 9) {
+        distractorCount = 9 - matchCount;
+      }
+
+      let items = [];
+      for (let i = 0; i < matchCount; i++) {
+        items.push({
+          id: 'item_' + i + '_' + Math.random(),
+          shapeId: targetShape.id,
+          isTarget: true,
+          color: pickRandom(PALETTE_COLORS)
+        });
+      }
+
+      const otherShapes = SHAPES_DEF.filter(s => s.id !== targetShape.id);
+      for (let d = 0; d < distractorCount; d++) {
+        const distShape = pickRandom(otherShapes);
+        items.push({
+          id: 'item_d_' + d + '_' + Math.random(),
+          shapeId: distShape.id,
+          isTarget: false,
+          color: pickRandom(PALETTE_COLORS)
+        });
+      }
+
+      items = shuffle(items);
+
+      const fingerprint = `${sceneTheme}_tgt_${targetShape.id}_m${matchCount}_` + items.map(it => it.shapeId).join('-');
+      const isDuplicate = recentHist.some(h => h.fingerprint === fingerprint);
+
+      if (isDuplicate && recentHist.length < 180) {
+        return generateActivity();
+      }
+
+      return {
+        targetShape,
+        targetColor,
+        sceneTheme,
+        matchCount,
+        items,
+        fingerprint
+      };
+    }
+
+    function recordActivityToHistory(fingerprint, targetId) {
+      updateProfile(prof => {
+        if (!prof.recentActivityHistory) prof.recentActivityHistory = [];
+        prof.recentActivityHistory.push({ fingerprint, targetId, timestamp: Date.now() });
+        if (prof.recentActivityHistory.length > 200) {
+          prof.recentActivityHistory.shift();
+        }
+      });
+    }
+
+    /* =================================================================
+       7. KEMASKINI PAPARAN BAHASA & UI DENGAN SVG
+       ================================================================= */
+    function applyLanguageUI() {
+      const prof = getActiveProfile();
+      const lang = prof.language || 'bm';
+      const t = I18N[lang];
+
+      document.getElementById('txtAppTitle').innerText = t.appTitle;
+      document.getElementById('txtHelloLabel').innerText = t.helloLabel;
+      document.getElementById('txtActiveChildName').innerText = prof.childName;
+      document.getElementById('txtScoreboardBtn').innerText = t.scoreboardBtn;
+      document.getElementById('txtMode5').innerText = t.mode5;
+      document.getElementById('txtMode10').innerText = t.mode10;
+      document.getElementById('txtModeFree').innerText = t.modeFree;
+      document.getElementById('txtGiftBtn').innerText = t.giftBtn;
+      document.getElementById('txtCollectionBtn').innerText = t.collectionBtn;
+      document.getElementById('txtAchieveBtn').innerText = t.achieveBtn;
+
+      // Togol Bahasa Bersama Ikon Globe SVG
+      document.getElementById('langIconSlot').innerHTML = CUTE_SVG.globe(15);
+      document.getElementById('langTextSlot').innerText = t.langBadgeText;
+
+      // Label Permainan
+      document.getElementById('txtTargetHeading').innerText = t.targetHeading;
+      document.getElementById('txtTargetSub').innerText = t.targetSub;
+      document.getElementById('txtFoundLabel').innerText = t.foundLabel;
+
+      // Skrin Sesi Selesai
+      document.getElementById('txtCompleteTitle').innerText = t.sessionComplete;
+      document.getElementById('txtCompleteMsg').innerText = t.sessionDesc;
+      document.getElementById('txtStatDone').innerText = t.statDone;
+      document.getElementById('txtStatStars').innerText = t.statStars;
+      document.getElementById('txtStatCoins').innerText = t.statCoins;
+      document.getElementById('txtBtnPlayAgain').innerText = t.playAgain;
+      document.getElementById('txtBtnCompleteBack').innerText = t.back;
+
+      // Modals
+      document.getElementById('txtSetupTitle').innerText = t.parentSetup;
+      document.getElementById('txtSetupSub').innerText = t.parentSetupSub;
+      document.getElementById('lblChildName').innerText = t.childName;
+      document.getElementById('lblFamilyCode').innerText = t.familyCode;
+      document.getElementById('lblLanguage').innerText = t.favLanguage;
+      document.getElementById('txtBtnSaveProfile').innerText = t.saveStart;
+
+      document.getElementById('txtScoreboardTitle').innerText = t.familyScoreboard;
+      document.getElementById('lblSbChild').innerText = t.childName;
+      document.getElementById('lblSbFamCode').innerText = t.familyCode;
+      document.getElementById('lblSbStars').innerText = t.totalStars;
+      document.getElementById('lblSbCoins').innerText = t.totalCoins;
+      document.getElementById('lblSbDone').innerText = t.activitiesCompleted;
+      document.getElementById('lblSbDiscovered').innerText = t.shapesDiscovered;
+      document.getElementById('lblSbSessions').innerText = t.totalSessions;
+      document.getElementById('txtBtnEditProf').innerText = t.editProfileBtn;
+      document.getElementById('lblSwitchProf').innerText = t.switchProfile;
+      document.getElementById('txtBtnNewProfile').innerText = t.newProfile;
+      document.getElementById('txtBtnReset').innerText = t.resetBtn;
+      document.getElementById('txtBtnCloseSb').innerText = t.close;
+
+      document.getElementById('txtEditModalTitle').innerText = t.editProfileTitle;
+      document.getElementById('lblEditChildName').innerText = t.childName;
+      document.getElementById('lblEditFamilyCode').innerText = t.familyCode;
+      document.getElementById('txtBtnSaveEdit').innerText = t.save;
+      document.getElementById('txtBtnCancelEdit').innerText = t.cancelBtn;
+
+      document.getElementById('txtCollectionTitle').innerText = t.collectionTitle;
+      document.getElementById('txtCollectionSub').innerText = t.collectionSub;
+      document.getElementById('txtBtnCloseCol').innerText = t.close;
+
+      document.getElementById('txtAchieveTitle').innerText = t.achieveBtn;
+      document.getElementById('txtBtnCloseAch').innerText = t.close;
+
+      document.getElementById('txtGiftTitle').innerText = t.dailyGiftTitle;
+      document.getElementById('txtGiftDesc').innerText = t.dailyGiftDesc;
+      document.getElementById('txtBtnClaimGift').innerText = t.claimGift;
+      document.getElementById('txtBtnCloseGift').innerText = t.close;
+
+      document.getElementById('txtResetTitle').innerText = t.deleteConfirmTitle;
+      document.getElementById('txtResetConfirmText').innerText = t.deleteConfirmMsg;
+      document.getElementById('txtBtnDelete').innerText = t.deleteBtn;
+      document.getElementById('txtBtnCancel').innerText = t.cancelBtn;
+
+      // Kemaskini HUD Atas
+      document.getElementById('topStarsVal').innerText = prof.stars;
+      document.getElementById('topCoinsVal').innerText = prof.coins;
+
+      // Kemaskini Nilai Papan Skor dengan SVG
+      document.getElementById('valSbStars').innerHTML = `${prof.stars} ${CUTE_SVG.star(18)}`;
+      document.getElementById('valSbCoins').innerHTML = `${prof.coins} ${CUTE_SVG.coin(18)}`;
+
+      if (gameState.targetShape) {
+        document.getElementById('targetShapeName').innerText = gameState.targetShape[lang];
+      }
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+
+      const headerHome = document.getElementById('btnHeaderHome');
+      const progressBadge = document.getElementById('progressBadge');
+
+      if (screenId === 'screenGame') {
+        headerHome.style.display = 'flex';
+        progressBadge.style.display = 'flex';
+      } else {
+        headerHome.style.display = 'none';
+        progressBadge.style.display = 'none';
+      }
+    }
+
+    function showToast(text, iconType = 'sparkle') {
+      const pill = document.getElementById('toastPill');
+      const iconSlot = document.getElementById('toastIcon');
+      const textSlot = document.getElementById('toastText');
+
+      if (iconType === 'star') iconSlot.innerHTML = CUTE_SVG.star(22);
+      else if (iconType === 'gift') iconSlot.innerHTML = CUTE_SVG.gift(22);
+      else if (iconType === 'check') iconSlot.innerHTML = CUTE_SVG.check(22);
+      else if (iconType === 'trash') iconSlot.innerHTML = CUTE_SVG.trash(22);
+      else iconSlot.innerHTML = CUTE_SVG.sparkle(22);
+
+      textSlot.innerText = text;
+      pill.classList.add('show');
+      setTimeout(() => pill.classList.remove('show'), 1600);
+    }
+
+    function triggerChibiReaction(type) {
+      const chibi = document.getElementById('chibiCharacter');
+      const eyes = document.getElementById('chibiEyes');
+      const mouth = document.getElementById('chibiMouth');
+
+      chibi.classList.remove('bounce');
+      void chibi.offsetWidth;
+      chibi.classList.add('bounce');
+
+      if (type === 'happy') {
+        eyes.innerHTML = `
+          <path d="M 33 42 Q 38 36 43 42" stroke="#42324F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M 57 42 Q 62 36 67 42" stroke="#42324F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        `;
+        mouth.setAttribute('d', 'M 44 46 Q 50 56 56 46 Z');
+        mouth.setAttribute('fill', '#FF8FBA');
+      } else if (type === 'thinking') {
+        eyes.innerHTML = `
+          <circle cx="38" cy="40" r="4.5" fill="#42324F"/>
+          <circle cx="62" cy="40" r="4.5" fill="#42324F"/>
+        `;
+        mouth.setAttribute('d', 'M 46 50 Q 50 48 54 50');
+        mouth.setAttribute('fill', 'none');
+      }
+
+      setTimeout(() => {
+        eyes.innerHTML = `
+          <circle cx="38" cy="42" r="5" fill="#42324F"/>
+          <circle cx="62" cy="42" r="5" fill="#42324F"/>
+          <circle cx="36" cy="40" r="1.8" fill="white"/>
+          <circle cx="60" cy="40" r="1.8" fill="white"/>
+        `;
+        mouth.setAttribute('d', 'M 46 48 Q 50 54 54 48');
+        mouth.setAttribute('fill', 'none');
+      }, 1200);
+    }
+
+    /* =================================================================
+       8. PARTIKEL CONFETTI
+       ================================================================= */
+    const canvas = document.getElementById('fxCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function spawnConfetti(originX, originY, count = 35) {
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: originX || window.innerWidth / 2,
+          y: originY || window.innerHeight / 2,
+          vx: (Math.random() - 0.5) * 14,
+          vy: (Math.random() - 0.9) * 16,
+          size: Math.random() * 8 + 6,
+          color: pickRandom(PALETTE_COLORS),
+          rotation: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 10,
+          opacity: 1
+        });
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.35;
+        p.rotation += p.vRot;
+        p.opacity -= 0.015;
+
+        if (p.opacity <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.opacity;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
+      }
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    /* =================================================================
+       9. LOGIK PERMAINAN & KETUKAN
+       ================================================================= */
+    function startGameMode(modeKey) {
+      gameState.mode = modeKey;
+      gameState.sessionStarsEarned = 0;
+      gameState.sessionCoinsEarned = 0;
+      gameState.currentActivityIndex = 1;
+
+      if (modeKey === 'mode5') gameState.totalActivities = 5;
+      else if (modeKey === 'mode10') gameState.totalActivities = 10;
+      else gameState.totalActivities = null;
+
+      showScreen('screenGame');
+      renderNextActivity();
+    }
+
+    function renderNextActivity() {
+      const prof = getActiveProfile();
+      const lang = prof.language || 'bm';
+      const t = I18N[lang];
+
+      const txtProgress = document.getElementById('txtProgress');
+      txtProgress.innerText = t.actProgress(gameState.currentActivityIndex, gameState.totalActivities);
+
+      const act = generateActivity();
+      gameState.targetShape = act.targetShape;
+      gameState.targetColor = act.targetColor;
+      gameState.matchingTotal = act.matchCount;
+      gameState.matchedCount = 0;
+      gameState.wrongCount = 0;
+      gameState.boardItems = act.items;
+
+      recordActivityToHistory(act.fingerprint, act.targetShape.id);
+
+      const targetDisplay = document.getElementById('targetShapeDisplay');
+      targetDisplay.innerHTML = getShapeSVG(act.targetShape.id, act.targetColor, '#3A284C', 8);
+      document.getElementById('targetShapeName').innerText = act.targetShape[lang];
+
+      const counterTray = document.getElementById('counterSlots');
+      counterTray.innerHTML = '';
+      for (let i = 0; i < act.matchCount; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'counter-slot';
+        slot.id = 'counterSlot_' + i;
+        slot.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M 6 12 L 10 16 L 18 8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        counterTray.appendChild(slot);
+      }
+
+      const boardContainer = document.getElementById('gameBoard');
+      boardContainer.innerHTML = '';
+      boardContainer.style.pointerEvents = '';
+      boardContainer.className = 'board-container ' + act.sceneTheme;
+
+      act.items.forEach(item => {
+        const tile = document.createElement('div');
+        tile.className = 'shape-item';
+        tile.id = item.id;
+        tile.innerHTML = getShapeSVG(item.shapeId, item.color, '#3A284C', 7);
+
+        tile.addEventListener('click', (e) => handleShapeTap(item, tile, e));
+        boardContainer.appendChild(tile);
+      });
+    }
+
+    function handleShapeTap(item, tileElement, event) {
+      if (tileElement.classList.contains('correct-anim')) return;
+
+      const prof = getActiveProfile();
+      const lang = prof.language || 'bm';
+      const t = I18N[lang];
+
+      if (item.isTarget) {
+        sfx.playPop();
+        sfx.playCorrect();
+        tileElement.classList.add('correct-anim');
+
+        const rect = tileElement.getBoundingClientRect();
+        spawnConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 18);
+
+        const slot = document.getElementById('counterSlot_' + gameState.matchedCount);
+        if (slot) {
+          slot.classList.add('filled');
+        }
+        gameState.matchedCount++;
+
+        triggerChibiReaction('happy');
+
+        if (gameState.matchedCount >= gameState.matchingTotal) {
+          handleActivityCompleted();
+        }
+      } else {
+        sfx.playWrong();
+        tileElement.classList.add('wrong-anim');
+        setTimeout(() => tileElement.classList.remove('wrong-anim'), 400);
+
+        gameState.wrongCount++;
+
+        if (gameState.wrongCount >= 2) {
+          showToast(t.skipEncouragement, 'sparkle');
+          triggerChibiReaction('thinking');
+
+          const boardContainer = document.getElementById('gameBoard');
+          boardContainer.style.pointerEvents = 'none';
+
+          document.querySelectorAll('.shape-item').forEach(el => {
+            const bItem = gameState.boardItems.find(it => it.id === el.id);
+            if (bItem && bItem.isTarget) {
+              el.style.borderColor = 'var(--mint)';
+              el.style.boxShadow = '0 0 14px var(--mint)';
+              el.style.transform = 'scale(1.05)';
+            }
+          });
+
+          setTimeout(() => {
+            if (gameState.totalActivities && gameState.currentActivityIndex >= gameState.totalActivities) {
+              finishSession();
+            } else {
+              gameState.currentActivityIndex++;
+              renderNextActivity();
+            }
+          }, 1300);
+
+        } else {
+          showToast(t.tryAgain, 'sparkle');
+          triggerChibiReaction('thinking');
+
+          const tgtWrapper = document.getElementById('targetShapeDisplay');
+          tgtWrapper.style.transform = 'scale(1.15)';
+          setTimeout(() => { tgtWrapper.style.transform = ''; }, 300);
+        }
+      }
+    }
+
+    function handleActivityCompleted() {
+      sfx.playReward();
+      const prof = getActiveProfile();
+      const lang = prof.language || 'bm';
+      const t = I18N[lang];
+
+      showToast(`${t.correctPraise} +1 Bintang, +5 Syiling`, 'star');
+
+      const targetId = gameState.targetShape.id;
+      updateProfile(p => {
+        p.stars += 1;
+        p.coins += 5;
+        p.activitiesCompleted += 1;
+        if (!p.shapeCollection) p.shapeCollection = [];
+        if (!p.shapeCollection.includes(targetId)) {
+          p.shapeCollection.push(targetId);
+        }
+      });
+
+      gameState.sessionStarsEarned += 1;
+      gameState.sessionCoinsEarned += 5;
+
+      checkAndUnlockAchievements();
+      applyLanguageUI();
+
+      setTimeout(() => {
+        if (gameState.totalActivities && gameState.currentActivityIndex >= gameState.totalActivities) {
+          finishSession();
+        } else {
+          gameState.currentActivityIndex++;
+          renderNextActivity();
+        }
+      }, 700);
+    }
+
+    function finishSession() {
+      sfx.playFanfare();
+      spawnConfetti(window.innerWidth / 2, window.innerHeight / 3, 70);
+      triggerChibiReaction('happy');
+
+      updateProfile(p => {
+        if (!p.sessions) p.sessions = [];
+        p.sessions.push({
+          timestamp: Date.now(),
+          mode: gameState.mode,
+          activities: gameState.totalActivities || gameState.currentActivityIndex,
+          stars: gameState.sessionStarsEarned,
+          coins: gameState.sessionCoinsEarned
+        });
+      });
+
+      document.getElementById('resActivitiesVal').innerText = gameState.totalActivities;
+      document.getElementById('resStarsVal').innerHTML = `+${gameState.sessionStarsEarned} ${CUTE_SVG.star(20)}`;
+      document.getElementById('resCoinsVal').innerHTML = `+${gameState.sessionCoinsEarned} ${CUTE_SVG.coin(20)}`;
+
+      showScreen('screenComplete');
+    }
+
+    /* =================================================================
+       10. PENCAPAIAN & HADIAH HARIAN
+       ================================================================= */
+    function checkAndUnlockAchievements() {
+      const prof = getActiveProfile();
+      const userActs = prof.activitiesCompleted || 0;
+      const discoveredCount = (prof.shapeCollection || []).length;
+      let newlyUnlocked = [];
+
+      ACHIEVEMENTS_DEF.forEach(ach => {
+        if (!prof.achievements.includes(ach.id)) {
+          let qualified = false;
+          if (ach.id === 'first_match' && userActs >= 1) qualified = true;
+          if (ach.id === 'shape_finder' && userActs >= 5) qualified = true;
+          if (ach.id === 'shape_master' && discoveredCount >= 8) qualified = true;
+          if (ach.id === 'super_matcher' && userActs >= 25) qualified = true;
+          if (ach.id === 'shape_hero' && userActs >= 50) qualified = true;
+
+          if (qualified) {
+            newlyUnlocked.push(ach.id);
+          }
+        }
+      });
+
+      if (newlyUnlocked.length > 0) {
+        updateProfile(p => {
+          p.achievements = [...(p.achievements || []), ...newlyUnlocked];
+        });
+      }
+    }
+
+    function openDailyGiftModal() {
+      const prof = getActiveProfile();
+      const lang = prof.language || 'bm';
+      const t = I18N[lang];
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const lastClaim = prof.dailyGift?.lastClaimDate;
+
+      const btnClaim = document.getElementById('btnClaimDailyGift');
+      const statusTxt = document.getElementById('giftClaimStatus');
+
+      if (lastClaim === todayStr) {
+        btnClaim.style.display = 'none';
+        statusTxt.style.display = 'block';
+        statusTxt.innerText = t.giftClaimedToday;
+      } else {
+        btnClaim.style.display = 'inline-flex';
+        statusTxt.style.display = 'none';
+      }
+
+      document.getElementById('modalGift').classList.add('active');
+    }
+
+    function claimDailyReward() {
+      const prof = getActiveProfile();
+      const lang = prof.language || 'bm';
+      const t = I18N[lang];
+      const todayStr = new Date().toISOString().slice(0, 10);
+
+      sfx.playFanfare();
+      spawnConfetti(window.innerWidth / 2, window.innerHeight / 2, 60);
+
+      updateProfile(p => {
+        p.stars += 2;
+        p.coins += 10;
+        if (!p.dailyGift) p.dailyGift = {};
+        p.dailyGift.lastClaimDate = todayStr;
+      });
+
+      applyLanguageUI();
+
+      const btnClaim = document.getElementById('btnClaimDailyGift');
+      const statusTxt = document.getElementById('giftClaimStatus');
+      btnClaim.style.display = 'none';
+      statusTxt.style.display = 'block';
+      statusTxt.innerText = t.giftSuccess;
+      showToast(t.giftSuccess, 'gift');
+    }
+
+    function openCollectionModal() {
+      const prof = getActiveProfile();
+      const lang = prof.language || 'bm';
+      const discovered = prof.shapeCollection || [];
+
+      const grid = document.getElementById('collectionGrid');
+      grid.innerHTML = '';
+
+      SHAPES_DEF.forEach((shape, index) => {
+        const isFound = discovered.includes(shape.id);
+        const card = document.createElement('div');
+        card.className = 'shape-grid-card ' + (isFound ? '' : 'locked');
+        card.innerHTML = `
+          ${getShapeSVG(shape.id, isFound ? PALETTE_COLORS[index % PALETTE_COLORS.length] : '#D0C2B2', '#3A284C', 6)}
+          <span>${shape[lang]}</span>
+        `;
+        grid.appendChild(card);
+      });
+
+      document.getElementById('modalCollection').classList.add('active');
+    }
+
+    function openAchievementsModal() {
+      const prof = getActiveProfile();
+      const lang = prof.language || 'bm';
+      const unlocked = prof.achievements || [];
+
+      const list = document.getElementById('achieveList');
+      list.innerHTML = '';
+
+      ACHIEVEMENTS_DEF.forEach(ach => {
+        const isUnlocked = unlocked.includes(ach.id);
+        const card = document.createElement('div');
+        card.className = 'achieve-card ' + (isUnlocked ? 'unlocked' : '');
+        card.innerHTML = `
+          <div class="achieve-icon">${ach.iconSvg}</div>
+          <div class="achieve-info">
+            <h4>
+              ${lang === 'bm' ? ach.bmTitle : ach.enTitle}
+              ${isUnlocked ? CUTE_SVG.sparkle(16) : ''}
+            </h4>
+            <p>${lang === 'bm' ? ach.bmDesc : ach.enDesc}</p>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+
+      document.getElementById('modalAchievements').classList.add('active');
+    }
+
+    function openScoreboardModal() {
+      const prof = getActiveProfile();
+      const db = loadAppData();
+
+      document.getElementById('valSbChild').innerText = prof.childName;
+      document.getElementById('valSbFamCode').innerText = prof.familyCode;
+      document.getElementById('valSbStars').innerHTML = `${prof.stars} ${CUTE_SVG.star(18)}`;
+      document.getElementById('valSbCoins').innerHTML = `${prof.coins} ${CUTE_SVG.coin(18)}`;
+      document.getElementById('valSbDone').innerText = prof.activitiesCompleted;
+      document.getElementById('valSbDiscovered').innerText = (prof.shapeCollection || []).length + ' / 8';
+      document.getElementById('valSbSessions').innerText = (prof.sessions || []).length;
+
+      const selSwitch = document.getElementById('selProfileSwitch');
+      selSwitch.innerHTML = '';
+      Object.keys(db.profiles).forEach(id => {
+        const p = db.profiles[id];
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.innerText = p.childName + ' (' + p.familyCode + ')';
+        if (p.id === prof.id) opt.selected = true;
+        selSwitch.appendChild(opt);
+      });
+
+      document.getElementById('modalScoreboard').classList.add('active');
+    }
+
+    /* =================================================================
+       11. PENDENGAR PERISTIWA (EVENT LISTENERS)
+       ================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener('pointerdown', () => sfx.init(), { once: true });
+
+      applyLanguageUI();
+
+      // Togol Audio
+      const btnAudioToggle = document.getElementById('btnAudioToggle');
+      const svgAudioOn = document.getElementById('svgAudioOn');
+      const svgAudioOff = document.getElementById('svgAudioOff');
+      btnAudioToggle.addEventListener('click', () => {
+        sfx.soundEnabled = !sfx.soundEnabled;
+        svgAudioOn.style.display = sfx.soundEnabled ? 'block' : 'none';
+        svgAudioOff.style.display = sfx.soundEnabled ? 'none' : 'block';
+        if (sfx.soundEnabled) sfx.playPop();
+      });
+
+      // Togol Bahasa
+      document.getElementById('btnLangToggle').addEventListener('click', () => {
+        const curProf = getActiveProfile();
+        const nextLang = (curProf.language === 'bm') ? 'en' : 'bm';
+        setLanguage(nextLang);
+        sfx.playPop();
+      });
+
+      // Butang Home
+      document.getElementById('btnHeaderHome').addEventListener('click', () => {
+        sfx.playPop();
+        showScreen('screenMenu');
+      });
+
+      // Butang Mod Permainan
+      document.getElementById('btnMode5').addEventListener('click', () => startGameMode('mode5'));
+      document.getElementById('btnMode10').addEventListener('click', () => startGameMode('mode10'));
+      document.getElementById('btnModeFree').addEventListener('click', () => startGameMode('free'));
+
+      // Bar Pantas
+      document.getElementById('btnParentSettings').addEventListener('click', openScoreboardModal);
+      document.getElementById('btnOpenGift').addEventListener('click', openDailyGiftModal);
+      document.getElementById('btnOpenCollection').addEventListener('click', openCollectionModal);
+      document.getElementById('btnOpenAchievements').addEventListener('click', openAchievementsModal);
+
+      // Hadiah Harian
+      document.getElementById('btnClaimDailyGift').addEventListener('click', claimDailyReward);
+      document.getElementById('giftBoxVisual').addEventListener('click', claimDailyReward);
+
+      // Skrin Selesai
+      document.getElementById('btnPlayAgain').addEventListener('click', () => startGameMode(gameState.mode));
+      document.getElementById('btnCompleteBack').addEventListener('click', () => showScreen('screenMenu'));
+
+      // Tutup Modals
+      document.getElementById('btnCloseScoreboard').addEventListener('click', () => {
+        document.getElementById('modalScoreboard').classList.remove('active');
+        applyLanguageUI();
+      });
+      document.getElementById('btnCloseCollection').addEventListener('click', () => {
+        document.getElementById('modalCollection').classList.remove('active');
+      });
+      document.getElementById('btnCloseAchieve').addEventListener('click', () => {
+        document.getElementById('modalAchievements').classList.remove('active');
+      });
+      document.getElementById('btnCloseGift').addEventListener('click', () => {
+        document.getElementById('modalGift').classList.remove('active');
+      });
+
+      // Tukar Profil Melalui Dropdown
+      document.getElementById('selProfileSwitch').addEventListener('change', (e) => {
+        switchProfile(e.target.value);
+        openScoreboardModal();
+        applyLanguageUI();
+        sfx.playPop();
+      });
+
+      // Buka Modal Sunting Profil Aktif
+      document.getElementById('btnEditCurrentProf').addEventListener('click', () => {
+        const cur = getActiveProfile();
+        document.getElementById('inpEditChildName').value = cur.childName;
+        document.getElementById('inpEditFamilyCode').value = cur.familyCode;
+        document.getElementById('modalScoreboard').classList.remove('active');
+        document.getElementById('modalEditProfile').classList.add('active');
+      });
+
+      // Simpan Suntingan Profil
+      document.getElementById('btnSaveEditProfile').addEventListener('click', () => {
+        const newName = document.getElementById('inpEditChildName').value.trim();
+        const newFam = document.getElementById('inpEditFamilyCode').value.trim();
+
+        updateProfile(p => {
+          if (newName) p.childName = newName;
+          if (newFam) {
+            p.familyCode = newFam;
+            p.familyCodeNormalized = newFam.toLowerCase();
+          }
+        });
+
+        document.getElementById('modalEditProfile').classList.remove('active');
+        applyLanguageUI();
+        openScoreboardModal();
+        sfx.playPop();
+        showToast("Profil telah dikemaskini!", 'check');
+      });
+
+      // Batal Suntingan Profil
+      document.getElementById('btnCancelEditProfile').addEventListener('click', () => {
+        document.getElementById('modalEditProfile').classList.remove('active');
+        openScoreboardModal();
+      });
+
+      // Tambah Profil Baru / Cari Profil Lama
+      document.getElementById('btnAddNewChild').addEventListener('click', () => {
+        document.getElementById('modalScoreboard').classList.remove('active');
+        document.getElementById('inpChildName').value = '';
+        document.getElementById('inpFamilyCode').value = '';
+        document.getElementById('btnCancelSetup').style.display = 'inline-flex';
+        document.getElementById('modalSetup').classList.add('active');
+      });
+
+      // Batal Tambah Profil Baru
+      document.getElementById('btnCancelSetup').addEventListener('click', () => {
+        document.getElementById('modalSetup').classList.remove('active');
+        openScoreboardModal();
+      });
+
+      // Simpan / Pulihkan Profil
+      document.getElementById('btnSaveProfile').addEventListener('click', () => {
+        const name = document.getElementById('inpChildName').value;
+        const code = document.getElementById('inpFamilyCode').value;
+        const lang = document.getElementById('selLanguage').value;
+        const t = I18N[lang || 'bm'];
+
+        const res = createOrRestoreProfile(name, code, lang);
+        document.getElementById('modalSetup').classList.remove('active');
+        applyLanguageUI();
+        sfx.playFanfare();
+
+        if (res.isRestored) {
+          showToast(t.profileRestored, 'check');
+        } else {
+          showToast(t.profileCreated, 'sparkle');
+        }
+      });
+
+      // Reset Data Profil Semasa
+      document.getElementById('btnResetCurrent').addEventListener('click', () => {
+        document.getElementById('modalScoreboard').classList.remove('active');
+        document.getElementById('modalConfirmReset').classList.add('active');
+      });
+
+      document.getElementById('btnConfirmDelete').addEventListener('click', () => {
+        const cur = getActiveProfile();
+        resetProfile(cur.id);
+        document.getElementById('modalConfirmReset').classList.remove('active');
+        applyLanguageUI();
+        sfx.playPop();
+        showToast("Data Reset Selesai", 'trash');
+      });
+
+      document.getElementById('btnCancelDelete').addEventListener('click', () => {
+        document.getElementById('modalConfirmReset').classList.remove('active');
+        openScoreboardModal();
+      });
+    });
+  </script>
+</body>
+</html>
